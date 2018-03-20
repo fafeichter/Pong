@@ -44,7 +44,7 @@ var gameProperties = {
     /**
      * Geschwindigkeit des Balles
      */
-    ballVelocity: 500,
+    ballVelocity: 200,
 
     /**
      * Mögliche Richtungsänderungen des Balles
@@ -70,7 +70,7 @@ var gameProperties = {
     /**
      * Anzahl der benötigten gewonnenen Spiele für einen Sieg
      */
-    scoreToWin: 11
+    scoreToWin: 3
 };
 
 var graphicAssets = {
@@ -105,7 +105,7 @@ var fontAssets = {
 };
 
 var labels = {
-    clickToStart: 'Left paddle: A to move up, Z to move down.\n\nRight paddle: UP and DOWN arrow keys.\n\n- click to start -',
+    clickToStart: 'Left paddle: W to move up, S to move down.\n\nRight paddle: UP and DOWN arrow keys.\n\n- click to start -',
     winner: 'Winner!'
 };
 
@@ -227,8 +227,8 @@ mainState.prototype = {
     },
 
     initKeyboard: function () {
-        this.paddleLeft_up = game.input.keyboard.addKey(Phaser.Keyboard.A);
-        this.paddleLeft_down = game.input.keyboard.addKey(Phaser.Keyboard.Z);
+        this.paddleLeft_up = game.input.keyboard.addKey(Phaser.Keyboard.W);
+        this.paddleLeft_down = game.input.keyboard.addKey(Phaser.Keyboard.S);
 
         this.paddleRight_up = game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this.paddleRight_down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
@@ -261,19 +261,21 @@ mainState.prototype = {
     },
 
     startBall: function () {
-        this.ballVelocity = gameProperties.ballVelocity;
-        this.ballReturnCount = 0;
-        this.ballSprite.visible = true;
+        if(!this.ballSprite.visible) {
+            this.ballVelocity = gameProperties.ballVelocity;
+            this.ballReturnCount = 0;
+            this.ballSprite.visible = true;
 
-        var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
+            var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
 
-        if (this.missedSide === 'right') {
-            randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight);
-        } else if (this.missedSide === 'left') {
-            randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleLeft);
+            if (this.missedSide === 'right') {
+                randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight);
+            } else if (this.missedSide === 'left') {
+                randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleLeft);
+            }
+
+            game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
         }
-
-        game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
     },
 
     resetBall: function () {
