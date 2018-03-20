@@ -1,17 +1,17 @@
 var gameProperties = {
     /**
-     * Größe des Spielfeldes
+     * Größe des Spielfeldes (Pixel)
      */
     screenWidth: 640,
     screenHeight: 480,
 
     /**
-     * Abstand zwischen den Linien in der Mitte des Spielfeldes
+     * Abstand zwischen den Linien in der Mitte des Spielfeldes (Pixel)
      */
     dashSize: 5,
 
     /**
-     * Abstand der Paddles zum Rand
+     * Abstand der Paddles zum Rand (Pixel)
      */
     paddleLeft_x: 50,
     paddleRight_x: 590,
@@ -27,17 +27,17 @@ var gameProperties = {
     paddleSegmentsMax: 4,
 
     /**
-     * Höhe eines Segmentes in einem Paddle
+     * Höhe eines Segmentes eines Paddles (Pixel)
      */
     paddleSegmentHeight: 4,
 
     /**
-     * Abstufung des Winkels je nach getroffenem Segment
+     * Abstufung des Winkels je nach getroffenem Segment (Grad)
      */
     paddleSegmentAngle: 15,
 
     /**
-     * Minimaler Abstand der Paddles zum oberen Rand
+     * Minimaler Abstand der Paddles zum oberen Rand (Pixel)
      */
     paddleTopGap: 22,
 
@@ -47,13 +47,13 @@ var gameProperties = {
     ballVelocity: 200,
 
     /**
-     * Mögliche Richtungsänderungen des Balles
+     * Mögliche Richtungsänderungen des Balles (Grad)
      */
     ballRandomStartingAngleLeft: [-120, 120],
     ballRandomStartingAngleRight: [-60, 60],
 
     /**
-     * Zeitverzögerung in Sekunden am Anfang des Spiels
+     * Zeitverzögerung am Anfang des Spiels (Sekunden)
      */
     ballStartDelay: 2,
 
@@ -70,7 +70,17 @@ var gameProperties = {
     /**
      * Anzahl der benötigten gewonnenen Spiele für einen Sieg
      */
-    scoreToWin: 3
+    scoreToWin: 3,
+
+    /**
+     * Zeit zwischen zwei Bewegungen des Paddles der KI (Millisekunden)
+     */
+    kiReactionTime: 10,
+
+    /**
+     * Verschiebung des Paddles der KI (Pixel)
+     */
+    paddleSpeed: 32 * 2
 };
 
 var graphicAssets = {
@@ -105,13 +115,14 @@ var fontAssets = {
 };
 
 var labels = {
-    clickToStart: 'Left paddle: W to move up, S to move down.\n\nRight paddle: UP and DOWN arrow keys.\n\n- click to start -',
+    clickToStart: 'move your paddle with [↑] and [↓]\n\n- click to start -',
     winner: 'Winner!'
 };
 
 var mainState = function (game) {
     this.backgroundGraphics;
     this.ballSprite;
+    this.currentBallDirection;
     this.paddleLeftSprite;
     this.paddleRightSprite;
     this.paddleGroup;
@@ -138,6 +149,8 @@ var mainState = function (game) {
     this.winnerRight;
 
     this.ballVelocity;
+
+    this.kIUpdateCount;
 };
 
 mainState.prototype = {
@@ -155,6 +168,7 @@ mainState.prototype = {
         this.initPhysics();
         this.initKeyboard();
         this.initSounds();
+        this.initKI();
         this.startDemo();
     },
 
@@ -240,6 +254,10 @@ mainState.prototype = {
         this.sndBallMissed = game.add.audio(soundAssets.ballMissedName);
     },
 
+    initKI: function () {
+        this.kIUpdateCount = 0;
+    },
+
     startDemo: function () {
         this.ballSprite.visible = false;
         this.resetBall();
@@ -261,7 +279,7 @@ mainState.prototype = {
     },
 
     startBall: function () {
-        if(!this.ballSprite.visible) {
+        if (!this.ballSprite.visible) {
             this.ballVelocity = gameProperties.ballVelocity;
             this.ballReturnCount = 0;
             this.ballSprite.visible = true;
@@ -272,6 +290,12 @@ mainState.prototype = {
                 randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight);
             } else if (this.missedSide === 'left') {
                 randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleLeft);
+            }
+
+            if (gameProperties.ballRandomStartingAngleRight.includes(randomAngle)) {
+                this.currentBallDirection = "right";
+            } else {
+                this.currentBallDirection = "left";
             }
 
             game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
@@ -303,17 +327,28 @@ mainState.prototype = {
     },
 
     moveLeftPaddle: function () {
-        if (this.paddleLeft_up.isDown) {
-            this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-        }
-        else if (this.paddleLeft_down.isDown) {
-            this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
-        } else {
-            this.paddleLeftSprite.body.velocity.y = 0;
-        }
+        this.kIUpdateCount++;
 
-        if (this.paddleLeftSprite.body.y < gameProperties.paddleTopGap) {
-            this.paddleLeftSprite.body.y = gameProperties.paddleTopGap;
+        if (this.kIUpdateCount % gameProperties.kiReactionTime === 0) {
+            this.kIUpdateCount = 0;
+
+            if (this.ballSprite.x < gameProperties.screenWidth * 0.75) {
+                if (this.currentBallDirection === "left") {
+                    if (!(Math.abs(this.ballSprite.body.y - this.paddleLeftSprite.body.y) < ((gameProperties.paddleSegmentsMax + gameProperties.paddleSegmentsMax) * gameProperties.paddleSegmentHeight))) {
+                        if (this.ballSprite.y < this.paddleLeftSprite.body.y) {
+                            if (this.paddleLeftSprite.body.y - gameProperties.paddleSpeed < gameProperties.paddleTopGap) {
+                                this.paddleLeftSprite.body.y = gameProperties.paddleTopGap;
+                            } else {
+                                this.paddleLeftSprite.body.y -= gameProperties.paddleSpeed;
+                            }
+                        } else if (this.ballSprite.y > this.paddleLeftSprite.body.y) {
+                            this.paddleLeftSprite.body.y += gameProperties.paddleSpeed;
+                        } else {
+                            this.paddleLeftSprite.body.velocity.y = 0;
+                        }
+                    }
+                }
+            }
         }
     },
 
@@ -346,6 +381,7 @@ mainState.prototype = {
 
         if (paddle.x < gameProperties.screenWidth * 0.5) {
             returnAngle = segmentHit * gameProperties.paddleSegmentAngle;
+            this.currentBallDirection = "right";
             game.physics.arcade.velocityFromAngle(returnAngle, this.ballVelocity, this.ballSprite.body.velocity);
         } else {
             returnAngle = 180 - (segmentHit * gameProperties.paddleSegmentAngle);
@@ -353,6 +389,7 @@ mainState.prototype = {
                 returnAngle -= 360;
             }
 
+            this.currentBallDirection = "left";
             game.physics.arcade.velocityFromAngle(returnAngle, this.ballVelocity, this.ballSprite.body.velocity);
         }
 
