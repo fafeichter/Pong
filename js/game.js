@@ -321,6 +321,7 @@ mainState.prototype = {
         this.ballSprite.reset(game.world.centerX, game.rnd.between(0, gameProperties.screenHeight));
         this.ballSprite.visible = false;
         game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
+        this.currentBallDirection = undefined;
     },
 
     enablePaddles: function (enabled) {
