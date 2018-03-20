@@ -1,25 +1,76 @@
 var gameProperties = {
+    /**
+     * Größe des Spielfeldes
+     */
     screenWidth: 640,
     screenHeight: 480,
-    
+
+    /**
+     * Abstand zwischen den Linien in der Mitte des Spielfeldes
+     */
     dashSize: 5,
-    
+
+    /**
+     * Abstand der Paddles zum Rand
+     */
     paddleLeft_x: 50,
     paddleRight_x: 590,
+
+    /**
+     * Geschwindigkeit der Paddles
+     */
     paddleVelocity: 600,
+
+    /**
+     * Anzahl der Segmente in einer Hälfte eines Paddles
+     */
     paddleSegmentsMax: 4,
+
+    /**
+     * Höhe eines Segmentes in einem Paddle
+     */
     paddleSegmentHeight: 4,
+
+    /**
+     * Abstufung des Winkels je nach getroffenem Segment
+     */
     paddleSegmentAngle: 15,
+
+    /**
+     * Minimaler Abstand der Paddles zum oberen Rand
+     */
     paddleTopGap: 22,
-    
+
+    /**
+     * Geschwindigkeit des Balles
+     */
     ballVelocity: 500,
+
+    /**
+     * Mögliche Richtungsänderungen des Balles
+     */
     ballRandomStartingAngleLeft: [-120, 120],
     ballRandomStartingAngleRight: [-60, 60],
+
+    /**
+     * Zeitverzögerung in Sekunden am Anfang des Spiels
+     */
     ballStartDelay: 2,
+
+    /**
+     * Gechwindigkeitserhöhung des Balles nach jedem Treffer
+     */
     ballVelocityIncrement: 25,
+
+    /**
+     * Anzahl der Treffer nach denen die Geschwindigkeit erhöht wird
+     */
     ballReturnCount: 4,
-    
-    scoreToWin: 11,
+
+    /**
+     * Anzahl der benötigten gewonnenen Spiele für einen Sieg
+     */
+    scoreToWin: 11
 };
 
 var graphicAssets = {
