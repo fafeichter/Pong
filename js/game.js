@@ -58,7 +58,7 @@ var gameProperties = {
     ballStartDelay: 2,
 
     /**
-     * Gechwindigkeitserhöhung des Balles nach jedem Treffer
+     * Gechwindigkeitserhöhung des Balles nach jedem <ballReturnCount>en
      */
     ballVelocityIncrement: 25,
 
@@ -70,12 +70,17 @@ var gameProperties = {
     /**
      * Anzahl der benötigten gewonnenen Spiele für einen Sieg
      */
-    scoreToWin: 3,
+    scoreToWin: 5,
 
     /**
      * Zeit zwischen zwei Bewegungen des Paddles der KI (Millisekunden)
      */
-    kiReactionTime: 10,
+    kiReactionTime: 8,
+
+    /**
+     * Reaktionserhöhung der KI nach jedem <ballReturnCount>en Treffer
+     */
+    kiReactionTimeIncrement: 1,
 
     /**
      * Multiplikator der Reaktionszeit der KI am Beginn des Spiels wenn die Richtung des Balles nocht nicht feststeht (Faktor)
@@ -425,6 +430,11 @@ mainState.prototype = {
         if (this.ballReturnCount >= gameProperties.ballReturnCount) {
             this.ballReturnCount = 0;
             this.ballVelocity += gameProperties.ballVelocityIncrement;
+            if (this.kiReactionTime - gameProperties.kiReactionTimeIncrement > 0) {
+                this.kiReactionTime -= gameProperties.kiReactionTimeIncrement;
+            } else {
+                this.kiReactionTime = gameProperties.kiReactionTimeIncrement;
+            }
         }
     },
 
