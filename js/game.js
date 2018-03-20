@@ -78,6 +78,16 @@ var gameProperties = {
     kiReactionTime: 10,
 
     /**
+     * Multiplikator der Reaktionszeit der KI am Beginn des Spiels wenn die Richtung des Balles nocht nicht feststeht (Faktor)
+     */
+    kiReactionTimeBeginFactor: 7,
+
+    /**
+     * Bereich in dem der Ball im Spielfeld sein muss gemessen an Y-Position in der die KI das Paddle bewegen darf (Prozent)
+     */
+    kiValidityArea: 0.75,
+
+    /**
      * Verschiebung des Paddles der KI (Pixel)
      */
     paddleSpeed: 32 * 2
@@ -295,7 +305,7 @@ mainState.prototype = {
             if (gameProperties.ballRandomStartingAngleRight.includes(randomAngle)) {
                 this.currentBallDirection = "right";
             } else {
-                this.currentBallDirection = "left";
+                this.currentBallDirection = "left|delay";
             }
 
             game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
@@ -329,24 +339,41 @@ mainState.prototype = {
     moveLeftPaddle: function () {
         this.kIUpdateCount++;
 
-        if (this.kIUpdateCount % gameProperties.kiReactionTime === 0) {
-            this.kIUpdateCount = 0;
+        switch (this.currentBallDirection) {
+            case "left|delay": {
+                if (this.kIUpdateCount % (gameProperties.kiReactionTime * gameProperties.kiReactionTimeBeginFactor) === 0) {
+                    this.currentBallDirection = "left";
+                    this.calculdateAndSetNewPositionLeftPaddle();
+                }
+                break;
+            }
+            case "left": {
+                if (this.kIUpdateCount % gameProperties.kiReactionTime === 0) {
+                    this.calculdateAndSetNewPositionLeftPaddle();
+                }
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    },
 
-            if (this.ballSprite.x < gameProperties.screenWidth * 0.75) {
-                if (this.currentBallDirection === "left") {
-                    if (!(Math.abs(this.ballSprite.body.y - this.paddleLeftSprite.body.y) < ((gameProperties.paddleSegmentsMax + gameProperties.paddleSegmentsMax) * gameProperties.paddleSegmentHeight))) {
-                        if (this.ballSprite.y < this.paddleLeftSprite.body.y) {
-                            if (this.paddleLeftSprite.body.y - gameProperties.paddleSpeed < gameProperties.paddleTopGap) {
-                                this.paddleLeftSprite.body.y = gameProperties.paddleTopGap;
-                            } else {
-                                this.paddleLeftSprite.body.y -= gameProperties.paddleSpeed;
-                            }
-                        } else if (this.ballSprite.y > this.paddleLeftSprite.body.y) {
-                            this.paddleLeftSprite.body.y += gameProperties.paddleSpeed;
-                        } else {
-                            this.paddleLeftSprite.body.velocity.y = 0;
-                        }
+    calculdateAndSetNewPositionLeftPaddle: function () {
+        this.kIUpdateCount = 0;
+
+        if (this.ballSprite.x < gameProperties.screenWidth * gameProperties.kiValidityArea) {
+            if (!(Math.abs(this.ballSprite.body.y - this.paddleLeftSprite.body.y) < ((gameProperties.paddleSegmentsMax + gameProperties.paddleSegmentsMax) * gameProperties.paddleSegmentHeight))) {
+                if (this.ballSprite.y < this.paddleLeftSprite.body.y) {
+                    if (this.paddleLeftSprite.body.y - gameProperties.paddleSpeed < gameProperties.paddleTopGap) {
+                        this.paddleLeftSprite.body.y = gameProperties.paddleTopGap;
+                    } else {
+                        this.paddleLeftSprite.body.y -= gameProperties.paddleSpeed;
                     }
+                } else if (this.ballSprite.y > this.paddleLeftSprite.body.y) {
+                    this.paddleLeftSprite.body.y += gameProperties.paddleSpeed;
+                } else {
+                    this.paddleLeftSprite.body.velocity.y = 0;
                 }
             }
         }
