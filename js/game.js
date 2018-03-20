@@ -19,7 +19,7 @@ var gameProperties = {
     /**
      * Geschwindigkeit der Paddles
      */
-    paddleVelocity: 600,
+    paddleVelocity: 300,
 
     /**
      * Anzahl der Segmente in einer Hälfte eines Paddles
@@ -90,7 +90,7 @@ var gameProperties = {
     /**
      * Verschiebung des Paddles der KI (Pixel)
      */
-    paddleSpeed: 32 * 2
+    paddleSpeed: 32
 };
 
 var graphicAssets = {
