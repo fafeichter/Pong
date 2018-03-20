@@ -95,7 +95,7 @@ var gameProperties = {
     /**
      * Verschiebung des Paddles der KI (Pixel)
      */
-    paddleSpeed: 32
+    paddleSpeed: 32 + 16
 };
 
 var graphicAssets = {
@@ -125,8 +125,8 @@ var fontAssets = {
     scoreRight_x: gameProperties.screenWidth * 0.75,
     scoreTop_y: 10,
 
-    scoreFontStyle: {font: '80px Arial', fill: '#FFFFFF', align: 'center'},
-    instructionsFontStyle: {font: '24px Arial', fill: '#FFFFFF', align: 'center'},
+    scoreFontStyle: {font: '60px Arial', fill: '#FFFFFF', align: 'center'},
+    instructionsFontStyle: {font: '18px Arial', fill: '#FFFFFF', align: 'center'},
 };
 
 var labels = {
