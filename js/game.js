@@ -85,7 +85,7 @@ var gameProperties = {
     /**
      * Bereich in dem der Ball im Spielfeld sein muss gemessen an Y-Position in der die KI das Paddle bewegen darf (Prozent)
      */
-    kiValidityArea: 0.75,
+    kiValidityArea: 0.85,
 
     /**
      * Verschiebung des Paddles der KI (Pixel)
@@ -363,7 +363,7 @@ mainState.prototype = {
         this.kIUpdateCount = 0;
 
         if (this.ballSprite.x < gameProperties.screenWidth * gameProperties.kiValidityArea) {
-            if (!(Math.abs(this.ballSprite.body.y - this.paddleLeftSprite.body.y) < ((gameProperties.paddleSegmentsMax + gameProperties.paddleSegmentsMax) * gameProperties.paddleSegmentHeight))) {
+            if (Math.abs(this.ballSprite.body.y - this.paddleLeftSprite.body.y) > ((gameProperties.paddleSegmentsMax + gameProperties.paddleSegmentsMax) * gameProperties.paddleSegmentHeight)) {
                 if (this.ballSprite.y < this.paddleLeftSprite.body.y) {
                     if (this.paddleLeftSprite.body.y - gameProperties.paddleSpeed < gameProperties.paddleTopGap) {
                         this.paddleLeftSprite.body.y = gameProperties.paddleTopGap;
